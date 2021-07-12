@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  proxy:
+    build:
+      context: "./docker/node"
+    container_name: proxy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./src/proxy:/src/proxy
+      - proxy-volume:/tmp 
+    command: node /src/proxy
+
+  cli:
+    image: node:14
+    # depends_on: 
+    #   - proxy
+    # container_name: cli
+    volumes:
+      - ./src:/src
+      - proxy-volume:/tmp
+    command: node /src/cli
+    
+volumes:
+  proxy-volume:
