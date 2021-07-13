@@ -1,29 +1,15 @@
-// help // выводит список доступных команд
-// ps [-a] // список контейнеров
-// inspect NAME|ID // получить информацию о контейнере
-// images // список образов
-// volumes // список разделов
-
 const command = {
-  help: "help",
   ps: "/containers/json",
   images: "/images/json",
   volumes: "/volumes",
 };
 
 module.exports = function requestHaldler(cmd) {
-  const commandParts = cmd.split(" ");
-  const preparedCmd = commandParts[0];
+  // console.log("FROM CLI ", cmd);
+  const commandParts = cmd.split(" ").map((arg) => arg.trim());
 
-  if (preparedCmd === "inspect" && commandParts[1]) {
-    return `/containers/${commandParts[1]}/json`;
+  if (commandParts[0] === "inspect" && commandParts[1]) {
+    return { path: `/containers/${commandParts[1]}/json`, cmd: "inspect" };
   }
-
-  switch (preparedCmd) {
-    case preparedCmd:
-      return command[preparedCmd];
-
-    default:
-      return command.help;
-  }
+  return { cmd, path: command[commandParts[0]] };
 };

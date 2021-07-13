@@ -2,31 +2,25 @@ const net = require("net");
 const fs = require("fs");
 const http = require("http");
 const handler = require("./utils");
-const dockerHandler = require("./docker-socket");
+const dockerHandler = require("./dockerHandler");
 
 const options = {
   socketPath: "/var/run/docker.sock",
 };
 
-// const callback = (response, socketServer) => {
-//   response
-//     .on("data", (data) => {
-//       console.log("!!!!!!", data.toString());
-//       socketServer.write(data.toString());
-//     })
-//     .on("error", (data) => console.error(data));
-// };
-
 const server = net.createServer((socketServer) => {
-  socketServer.on("data", (data) => {
-    const cmd = handler(data.toString().trim());
-    if (cmd === "help") {
-    } else {
-      http.get({ ...options, path: cmd }, (response) => {
-        dockerHandler(response, socketServer);
+  socketServer
+    .on("end", exitHandler)
+    .on("error", (err) => {
+      console.log(err.message);
+    })
+    .on("data", (data) => {
+      const { cmd, path } = handler(data.toString());
+      console.log("TO DOCKER", cmd, path);
+      http.get({ ...options, path }, (response) => {
+        dockerHandler(response, socketServer, cmd);
       });
-    }
-  });
+    });
 });
 
 server.listen("/tmp/proxy.sock", () => {
@@ -37,7 +31,7 @@ const exitHandler = function () {
   try {
     fs.rmSync("/tmp/proxy.sock", { force: true });
   } catch (error) {
-    console.log(err);
+    console.log(error);
     console.log("can't remove proxy socket");
   }
 };
@@ -46,4 +40,4 @@ process.on("SIGINT", () => {
   exitHandler();
   process.exit(0);
 });
-server.on("close", exitHandler);
+server.on("end", exitHandler).on("close", exitHandler);

@@ -1,0 +1,7 @@
+{
+  "help": "Get information about command",
+  "ps": "List containers",
+  "inspect NAME|ID": "Return low-level information on Docker objects",
+  "images": "List images",
+  "volumes": "List volumes"
+}

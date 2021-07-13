@@ -1,33 +1,34 @@
 const net = require("net");
 const repl = require("repl");
+const util = require("util");
+const format = require('./utils')
+// const { pipeline } = require("./formatStream");
+// const FormatStream = require("./formatStream");
 
-const socketListener = net.createConnection("/tmp/proxy.sock");
-// // socketListener.write("Test info");
+const proxySocket = net.createConnection("/tmp/proxy.sock");
 
+// const formatStream = new FormatStream();
 // process.stdin.on("data", (data) => {
-//   console.log("***", data);
-//   socketListener.write(data);
+//   proxySocket.write(data.toString().trim());
 // });
 
-// socketListener.on("data", (data) => {
-//   console.log("CLI RESULT>>", data.toString());
-// });
+// proxySocket.pipe(formatStream);
 
-// socketListener.on("error", (err) => {
-//   console.log(err.message);
-// });
-
-const cli = repl.start({
-  // input: process.stdin,
-  // output: socketListener,
-  prompt: "docker cli>>> ",
+proxySocket.on("data", (info) => {
+  const { data, cmd } = JSON.parse(info); // cmd - string, data - obj, data.data - Buffer
+  format({data, cmd})
+// console.table()
+// console.log('>>>',cmd,  data);
+  repl1.displayPrompt();
 });
-cli.defineCommand("help", { help: "Get information about command" });
-cli.defineCommand("ps", { help: "List containers" });
-cli.defineCommand("inspect", {
-  help: "Return low-level information on Docker objects",
-}); //!!!
-cli.defineCommand("images", { help: "List images" });
-cli.defineCommand("volumes", { help: "List volumes" });
 
-console.log("CLI>>>", cli);
+process.on("SIGINT", () => {
+  process.exit(0);
+});
+
+const repl1 = repl.start({
+  // prompt: "",
+  eval: (data) => {
+    proxySocket.write(data.toString());
+  },
+});

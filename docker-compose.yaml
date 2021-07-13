@@ -14,11 +14,11 @@ services:
     image: node:14
     # depends_on: 
     #   - proxy
-    # container_name: cli
+    container_name: cli
     volumes:
       - ./src:/src
       - proxy-volume:/tmp
-    command: node /src/cli
+    # command: node /src/cli
     
 volumes:
   proxy-volume:
