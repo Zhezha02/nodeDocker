@@ -7,8 +7,6 @@ const proxySocket = net.createConnection("/tmp/proxy.sock");
 proxySocket.on("data", (info) => {
   const { data, cmd } = JSON.parse(info); // cmd - string, data - obj, data.data - Buffer
   format({ data, cmd });
-  // console.table(format({ data, cmd }));
-  // console.log('>>>',cmd,  data);
   repl1.displayPrompt();
 });
 
