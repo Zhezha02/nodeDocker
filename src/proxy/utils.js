@@ -5,7 +5,6 @@ const command = {
 };
 
 module.exports = function requestHaldler(cmd) {
-  // console.log("FROM CLI ", cmd);
   const commandParts = cmd.split(" ").map((arg) => arg.trim());
 
   if (commandParts[0] === "inspect" && commandParts[1]) {
